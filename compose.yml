@@ -1,0 +1,95 @@
+name: local-otel-collector
+services:
+  opentelemetry-collector:
+    image: otel/opentelemetry-collector-contrib
+    container_name: otel-collector
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./collector-config.yaml:/etc/otelcol/config.yaml
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "8888:8888"
+    networks:
+      - local-otel
+    depends_on:
+      - my-app-server
+  otel-pg:
+    image: postgres:15
+    container_name: otel-pg
+    env_file:
+      - ./.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - otel-pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER} -d ${PG_DATABASE}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - local-otel
+  postgres-exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter
+    container_name: postgres-exporter
+    env_file:
+      - ./.env
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${PG_USER}:${PG_PASSWORD}@otel-pg:5432/${PG_DATABASE}?sslmode=disable"
+    ports:
+      - 9187:9187
+    networks:
+      - local-otel
+    depends_on:
+      otel-pg:
+        condition: service_healthy
+
+  my-app-server:
+    build: .
+    container_name: node_server
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    ports:
+      - 3000:3000
+    networks:
+      - local-otel
+    depends_on:
+      otel-pg:
+        condition: service_healthy
+  # Jaeger:
+  #   environment:
+  #     - "COLLECTOR_ZIPKIN_HOST_PORT=:9411"
+  #   ports:
+  #     - "16686:16686"
+  #     - "4317:4317"
+  #     - "4318:4318"
+  #     - "9411:9411"
+  #   image: "jaegertracing/all-in-one:latest"
+  #   networks:
+  #     - local-otel
+  # prometheus:
+  #   ports:
+  #     - "9090:9090"
+  #   image: "prom/prometheus:latest"
+  #   networks:
+  #     - local-otel
+  #   volumes:
+  #     - ${PROMETHEUS_CONFIG_FILE_PATH}:/etc/prometheus/prometheus.yml
+  #   command:
+  #     - "--config.file=/etc/prometheus/prometheus.yml"
+  #     - "--web.listen-address=:9090"
+  #     - "--enable-feature=otlp-write-receive"
+  # zipkin:
+  #   ports:
+  #     - "9411:9411"
+  #   container_name: zipkin
+  #   image: "openzipkin/zipkin"
+
+volumes:
+  otel-pg-data:
+
+networks:
+  local-otel:
+    driver: bridge # 가장 일반적인 도커 네트워크 드라이버

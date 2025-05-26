@@ -1,23 +1,27 @@
-/* document-load.ts|js file - the code is the same for both the languages */
-import {
-	ConsoleSpanExporter,
-	SimpleSpanProcessor,
-} from "@opentelemetry/sdk-trace-base";
 import { WebTracerProvider } from "@opentelemetry/sdk-trace-web";
-import { DocumentLoadInstrumentation } from "@opentelemetry/instrumentation-document-load";
-import { ZoneContextManager } from "@opentelemetry/context-zone";
+import { getWebAutoInstrumentations } from "@opentelemetry/auto-instrumentations-web";
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { registerInstrumentations } from "@opentelemetry/instrumentation";
 
-const provider = new WebTracerProvider({
-	spanProcessors: [new SimpleSpanProcessor(new ConsoleSpanExporter())],
+const provider = new WebTracerProvider();
+
+const exporter = new OTLPTraceExporter({
+	// Collector는 Docker 컨테이너지만, 브라우저는 로컬 PC에서 실행됩니다.
+	// 따라서 localhost와 compose.yml에 노출된 포트(4318)를 사용합니다.
+	url: "http://localhost:4318/v1/traces",
 });
 
-provider.register({
-	// Changing default contextManager to use ZoneContextManager - supports asynchronous operations - optional
-	contextManager: new ZoneContextManager(),
-});
+provider.addSpanProcessor(new BatchSpanProcessor(exporter));
+provider.register();
 
-// Registering instrumentations
 registerInstrumentations({
-	instrumentations: [new DocumentLoadInstrumentation()],
+	instrumentations: [
+		getWebAutoInstrumentations({
+			// Fetch, XHR 요청을 자동으로 추적합니다.
+			"@opentelemetry/instrumentation-fetch": {
+				enabled: true,
+			},
+		}),
+	],
 });

@@ -8,6 +8,11 @@ receivers:
 exporters:
   debug:
     verbosity: detailed
+  logging:
+    loglevel: debug
+
+processors:
+  batch:
 service:
   pipelines:
     traces:
