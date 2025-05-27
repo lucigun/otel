@@ -1,36 +1,28 @@
 {
-  "name": "my-app",
-  "version": "1.0.0",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "@opentelemetry/api": "^1.9.0",
-    "@opentelemetry/context-zone": "^2.0.1",
-    "@opentelemetry/exporter-metrics-otlp-grpc": "^0.201.1",
-    "@opentelemetry/exporter-metrics-otlp-http": "^0.201.1",
-    "@opentelemetry/exporter-prometheus": "^0.201.1",
-    "@opentelemetry/exporter-trace-otlp-grpc": "^0.201.1",
-    "@opentelemetry/exporter-trace-otlp-http": "^0.201.1",
-    "@opentelemetry/exporter-zipkin": "^2.0.1",
-    "@opentelemetry/instrumentation": "^0.201.1",
-    "@opentelemetry/instrumentation-document-load": "^0.46.0",
-    "@opentelemetry/instrumentation-express": "^0.50.0",
-    "@opentelemetry/instrumentation-http": "^0.201.1",
-    "@opentelemetry/instrumentation-pg": "^0.53.0",
-    "@opentelemetry/sdk-node": "^0.201.1",
-    "@opentelemetry/sdk-trace-base": "^2.0.1",
-    "@opentelemetry/sdk-trace-web": "^2.0.1",
-    "cors": "^2.8.5",
-    "express": "^5.1.0",
-    "pg": "^8.16.0",
-    "undefined": "^0.1.0"
-  },
-  "devDependencies": {
-    "parcel": "^2.15.1"
-  }
+	"name": "my-app",
+	"version": "1.0.0",
+	"scripts": {
+		"start": "node -r ./instrumentation.js server.js",
+		"dev": "cross-env NODE_ENV=development node -r ./instrumentation.js server.js",
+		"prod": "cross-env NODE_ENV=production node -r ./instrumentation.js server.js"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"description": "",
+	"dependencies": {
+		"@opentelemetry/api": "^1.8.0",
+		"@opentelemetry/auto-instrumentations-node": "^0.45.0",
+		"@opentelemetry/auto-instrumentations-web": "^0.47.0",
+		"@opentelemetry/exporter-trace-otlp-grpc": "^0.51.0",
+		"@opentelemetry/sdk-node": "^0.51.0",
+		"cors": "^2.8.5",
+		"dotenv": "^16.4.5",
+		"express": "^4.19.2",
+		"pg": "^8.16.0"
+	},
+	"devDependencies": {
+		"cross-env": "^7.0.3",
+		"parcel": "^2.15.1"
+	}
 }

@@ -1,7 +1,9 @@
 const express = require("express");
 const { Pool } = require("pg");
 const cors = require("cors");
-require("dotenv").config(); // .env 파일 로드를 위해 추가
+require("dotenv").config({
+	path: process.env.NODE_ENV === "production" ? ".env" : ".env.local",
+}); // .env 파일 로드를 위해 추가
 
 const app = express();
 app.use(cors());
@@ -25,7 +27,6 @@ const pool = new Pool({
 	port: process.env.PG_PORT,
 });
 
-// ... (이하 API 로직은 동일) ...
 app.post("/api/search", async (req, res) => {
 	const { searchTerm } = req.body;
 	try {

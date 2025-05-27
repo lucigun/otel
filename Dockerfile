@@ -3,6 +3,9 @@
 # Node.js 18 버전을 기반으로 시작
 FROM node:18-alpine
 
+# 필요한 빌드 도구들 설치
+RUN apk add --no-cache python3 make g++ gcc
+
 # 컨테이너 내부에 앱을 위한 폴더 생성
 WORKDIR /usr/src/app
 
