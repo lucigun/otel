@@ -1,0 +1,9 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090 # Grafana는 서비스 이름을 통해 Prometheus에 액세스
+    isDefault: true
+    editable: true

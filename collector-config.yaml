@@ -8,11 +8,13 @@ receivers:
 exporters:
   debug:
     verbosity: detailed
-  logging:
-    loglevel: debug
+
+  prometheus:
+    endpoint: "0.0.0.0:8889" # 프로메테우스가 스크랩할 엔드포인트
 
 processors:
   batch:
+
 service:
   pipelines:
     traces:
@@ -20,7 +22,7 @@ service:
       exporters: [debug]
     metrics:
       receivers: [otlp]
-      exporters: [debug]
+      exporters: [debug, prometheus] # 메트릭을 debug와 prometheus로 전송
     logs:
       receivers: [otlp]
       exporters: [debug]
